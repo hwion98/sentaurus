@@ -126,4 +126,9 @@
 (sdedr:define-refinement-function "RefDef.all" "DopingConcentration" "MaxTransDiff" 1)
 (sdedr:define-refinement-placement "PlaceRF.all" "RefDef.all" "RefWin.all")
 
+(sdedr:define-refeval-window "RefWin.all" "rectangle" (position emitter_left epi_top 0) (position emitter_right epi_top 0))
+(sdedr:define-refinement-size "RefDef.all" 0.01 0.01 0 0.0001 0.0001 0 )
+(sdedr:define-refinement-function "RefDef.all" "DopingConcentration" "MaxTransDiff" 1)
+(sdedr:define-refinement-placement "PlaceRF.all" "RefDef.all" "RefWin.all")
+
 (sde:build-mesh "n@node@")
