@@ -70,11 +70,11 @@ Solve {
  }
  Plot (FilePrefix = "n@node@_base_")
  NewCurrentPrefix = "VbeIc_"
- Quasistationary (
+ /*Quasistationary (
     InitialStep = 0.05 Increment = 1.3	
   Minstep = 1.e-6     Maxstep = 0.05	
   Goal { Name = "collector_contact" Voltage = @Vce@ }  
  ) {
        Coupled { Poisson Electron Hole }
- }
+ }*/
 }

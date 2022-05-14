@@ -47,13 +47,50 @@
 (define oxide_width 2.2)
 (define oxide_top epi_top)
 
-;geometry
-
+; make_substrate
 (sdegeo:create-rectangle (position substrate_left substrate_top 0) (position substrate_right substrate_bottom 0) "Silicon" "substrate")
+
+; substrate_doping
+(sdedr:define-constant-profile "substrate_dop" "BoronActiveConcentration" substrate_doping)
+(sdedr:define-constant-profile-region "substrate_dop" "substrate_dop" "substrate")
+
+;buried_layer_doping
+(sdedr:define-refeval-window "BaseLine.buried_layer" "Line" (position epi_left substrate_top 0) (position sinker_right substrate_top 0))
+(sdedr:define-gaussian-profile "Gauss.buried_layer" "PhosphorusActiveConcentration" "PeakPos" substrate_top "PeakVal" 5e19
+"ValueAtDepth" substrate_doping "Depth" 0.3 "Gauss" "Length" 0.02)
+(sdedr:define-analytical-profile-placement "Place.buried_layer" "Gauss.buried_layer" "BaseLine.buried_layer" "Positive" "NoRepalce" "Eval")
+
+;create_epi_layer
 (sdegeo:create-rectangle (position epi_left epi_top 0) (position epi_right substrate_top 0) "Silicon" "epi_layer")
 (sdegeo:create-rectangle (position sinker_left epi_top 0) (position sinker_right substrate_top 0) "Silicon" "sinker")
 (sdegeo:set-default-boolean "BAB")
 (sdegeo:create-rectangle (position 0 0 0) (position oxide_width oxide_top 0) "SiO2" "oxide")
+
+;epi_layer_doping
+
+(sdedr:define-constant-profile "epi_dop" "PhosphorusActiveConcentration" epi_layer_doping)
+(sdedr:define-constant-profile-region "epi_dop" "epi_dop" "epi_layer")
+
+(sdedr:define-constant-profile "epi_dop2" "PhosphorusActiveConcentration" epi_layer_doping)
+(sdedr:define-constant-profile-region "epi_dop2" "epi_dop2" "sinker")
+
+; base_doping
+(sdedr:define-refeval-window "BaseLine.base" "Line" (position epi_left epi_top 0) (position epi_right epi_top 0))
+(sdedr:define-gaussian-profile "Gauss.base" "BoronActiveConcentration" "PeakPos" 0 "PeakVal" base_doping_concentration
+"ValueAtDepth" epi_layer_doping "Depth" (+ base_thickness emitter_thickness) "Gauss" "Length" 0.02)
+(sdedr:define-analytical-profile-placement "Place.base" "Gauss.base" "BaseLine.base" "Positive" "NoRepalce" "Eval")
+
+; sinker_doping
+(sdedr:define-refeval-window "BaseLine.sinker" "Line" (position sinker_left epi_top 0) (position sinker_right epi_top 0))
+(sdedr:define-gaussian-profile "Gauss.sinker" "PhosphorusActiveConcentration" "PeakPos" 0 "PeakVal" sinker_doping_concentration
+"ValueAtDepth" 1e17 "Depth" (+ epi_thickness 0.2) "Gauss" "Length" 0.02)
+(sdedr:define-analytical-profile-placement "Place.sinker" "Gauss.sinker" "BaseLine.sinker" "Positive" "NoRepalce" "Eval")
+
+;emitter_doping
+(sdedr:define-refeval-window "BaseLine.emitter" "Line" (position emitter_left epi_top 0) (position emitter_right epi_top 0))
+(sdedr:define-gaussian-profile "Gauss.emitter" "PhosphorusActiveConcentration" "PeakPos" 0 "PeakVal" emitter_doping_concentration
+"ValueAtDepth" 1e18 "Depth" emitter_thickness "Gauss" "Length" 0.02)
+(sdedr:define-analytical-profile-placement "Place.emitter" "Gauss.emitter" "BaseLine.emitter" "Positive" "NoRepalce" "Eval")
 
 ;contact
 
@@ -82,37 +119,6 @@
 (sdegeo:set-current-contact-set "substrate_contact")
 (sdegeo:set-contact-edges (list (car (find-edge-id (position substrate_middle substrate_bottom 0)))) "substrate_contact")
 
-;doping
-
-(sdedr:define-constant-profile "substrate_dop" "BoronActiveConcentration" substrate_doping)
-(sdedr:define-constant-profile-region "substrate_dop" "substrate_dop" "substrate")
-
-(sdedr:define-constant-profile "epi_dop" "PhosphorusActiveConcentration" epi_layer_doping)
-(sdedr:define-constant-profile-region "epi_dop" "epi_dop" "epi_layer")
-
-(sdedr:define-constant-profile "epi_dop2" "PhosphorusActiveConcentration" epi_layer_doping)
-(sdedr:define-constant-profile-region "epi_dop2" "epi_dop2" "sinker")
-
-(sdedr:define-refeval-window "BaseLine.base" "Line" (position epi_left epi_top 0) (position epi_right epi_top 0))
-(sdedr:define-gaussian-profile "Gauss.base" "BoronActiveConcentration" "PeakPos" 0 "PeakVal" base_doping_concentration
-"ValueAtDepth" epi_layer_doping "Depth" (+ base_thickness emitter_thickness) "Gauss" "Length" 0.02)
-(sdedr:define-analytical-profile-placement "Place.base" "Gauss.base" "BaseLine.base" "Positive" "NoRepalce" "Eval")
-
-(sdedr:define-refeval-window "BaseLine.buried_layer" "Line" (position epi_left substrate_top 0) (position sinker_right substrate_top 0))
-(sdedr:define-gaussian-profile "Gauss.buried_layer" "PhosphorusActiveConcentration" "PeakPos" substrate_top "PeakVal" 5e19
-"ValueAtDepth" substrate_doping "Depth" 0.3 "Gauss" "Length" 0.02)
-(sdedr:define-analytical-profile-placement "Place.buried_layer" "Gauss.buried_layer" "BaseLine.buried_layer" "Positive" "NoRepalce" "Eval")
-
-(sdedr:define-refeval-window "BaseLine.sinker" "Line" (position sinker_left epi_top 0) (position sinker_right epi_top 0))
-(sdedr:define-gaussian-profile "Gauss.sinker" "PhosphorusActiveConcentration" "PeakPos" 0 "PeakVal" sinker_doping_concentration
-"ValueAtDepth" 1e17 "Depth" (+ epi_thickness 0.2) "Gauss" "Length" 0.02)
-(sdedr:define-analytical-profile-placement "Place.sinker" "Gauss.sinker" "BaseLine.sinker" "Positive" "NoRepalce" "Eval")
-
-(sdedr:define-refeval-window "BaseLine.emitter" "Line" (position emitter_left epi_top 0) (position emitter_right epi_top 0))
-(sdedr:define-gaussian-profile "Gauss.emitter" "PhosphorusActiveConcentration" "PeakPos" 0 "PeakVal" emitter_doping_concentration
-"ValueAtDepth" 1e18 "Depth" emitter_thickness "Gauss" "Length" 0.02)
-(sdedr:define-analytical-profile-placement "Place.emitter" "Gauss.emitter" "BaseLine.emitter" "Positive" "NoRepalce" "Eval")
-
 ;mesh
 
 (define res_max 0.1)
@@ -126,7 +132,7 @@
 (sdedr:define-refinement-function "RefDef.all" "DopingConcentration" "MaxTransDiff" 1)
 (sdedr:define-refinement-placement "PlaceRF.all" "RefDef.all" "RefWin.all")
 
-(sdedr:define-refeval-window "RefWin.all" "rectangle" (position emitter_left epi_top 0) (position emitter_right epi_top 0))
+(sdedr:define-refeval-window "RefWin.all" "rectangle" (position emitter_left epi_top 0) (position emitter_right 0.6 0))
 (sdedr:define-refinement-size "RefDef.all" 0.01 0.01 0 0.0001 0.0001 0 )
 (sdedr:define-refinement-function "RefDef.all" "DopingConcentration" "MaxTransDiff" 1)
 (sdedr:define-refinement-placement "PlaceRF.all" "RefDef.all" "RefWin.all")
