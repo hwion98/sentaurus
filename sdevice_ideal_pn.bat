@@ -71,3 +71,4 @@ Solve {
  ) {
        Coupled { Poisson Electron Hole }
  }
+}

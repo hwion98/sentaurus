@@ -18,8 +18,12 @@ Physics {
   Fermi
   Mobility(
     DopingDep
+    HighFieldSaturation(GradQuasiFermi)
   )
-  Recombination (SRH(DopingDependence) Auger)
+  Recombination (
+    SRH(DopingDependence) 
+    Auger
+  )
   EffectiveIntrinsicDensity (
     BandGapNarrowing (oldSlotboom)
   )
@@ -63,18 +67,30 @@ Solve {
 
   Quasistationary (
   InitialStep = 0.05 Increment = 1.3	
-  Minstep = 1.e-6     Maxstep = 0.05	
+  Minstep = 1.e-6     Maxstep = 0.1	
   Goal { Name = "base_contact" Voltage = @Vbe@ }  
  ) {
        Coupled { Poisson Electron Hole }
  }
- Plot (FilePrefix = "n@node@_base_")
- NewCurrentPrefix = "VbeIc_"
- /*Quasistationary (
-    InitialStep = 0.05 Increment = 1.3	
-  Minstep = 1.e-6     Maxstep = 0.05	
+
+
+  set("base_contact" mode current)
+  Quasistationary (
+  InitialStep = 0.05 Increment = 1.3	
+  Minstep = 1.e-6     Maxstep = 0.1	
+  Goal { Name = "base_contact" Current = @Ib@ }  
+ ) {
+       Coupled { Poisson Electron Hole }
+ }
+
+  Plot (FilePrefix = "n@node@_base_")
+  NewCurrentPrefix = "VceIc_"
+
+ Quasistationary (
+    InitialStep = 0.01 Increment = 1.2	
+  Minstep = 1.e-6     Maxstep = 0.08	
   Goal { Name = "collector_contact" Voltage = @Vce@ }  
  ) {
        Coupled { Poisson Electron Hole }
- }*/
+ }
 }
