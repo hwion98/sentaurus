@@ -23,6 +23,8 @@ Physics {
   Recombination (
     SRH(DopingDependence) 
     Auger
+    Avalanche(GradQuasiFermi)
+    Band2Band(Model = NonlocalPath)
   )
   EffectiveIntrinsicDensity (
     BandGapNarrowing (oldSlotboom)
@@ -40,23 +42,25 @@ Plot {
   Doping
   eVelocity hVelocity
   conductionband valenceband
-  SRH Auger      
+  SRH Auger
+  Band2BandGeneration      
 }
 
 Math {
 
- Extrapolate
- ExitOnFailure
- RelErrControl
+  Extrapolate
+  ExitOnFailure
+  RelErrControl
 
- Digits = 5
- Iterations = 10
- NotDamped = 100
- Method = pardiso
-
- NumberOfThreads = 4
- ParallelLicense (Wait)
- Wallclock
+  Digits = 5
+  Iterations = 10
+  NotDamped = 100
+  Method = pardiso
+  ComputeIonizationIntegrals (direction="ElectricField")
+  AvalPostProcessing
+  NumberOfThreads = 4
+  ParallelLicense (Wait)
+  Wallclock
 }
 
 
