@@ -43,7 +43,8 @@ Plot {
   eVelocity hVelocity
   conductionband valenceband
   SRH Auger
-  Band2BandGeneration      
+  Band2BandGeneration
+  ImpactIonization     
 }
 
 Math {
@@ -56,8 +57,13 @@ Math {
   Iterations = 10
   NotDamped = 100
   Method = pardiso
-  ComputeIonizationIntegrals (direction="ElectricField")
+  BreakAtIonIntegral
+  ComputeIonizationIntegrals (
+    ComputeAtMaxElectricField
+    direction="eGradQuasiFermi"
+  )
   AvalPostProcessing
+
   NumberOfThreads = 4
   ParallelLicense (Wait)
   Wallclock
