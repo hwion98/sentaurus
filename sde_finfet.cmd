@@ -65,15 +65,15 @@
 (sdegeo:create-cuboid (position channel_edge_x channel_edge_y channel_edge_z) (position channel_edge_top_x channel_edge_top_y channel_edge_top_z ) "Silicon" "channel")
 
 ; make spacer
-(sdegeo:create-cuboid (position drain_edge_x (- drain_edge_y Lspf) drain_edge_z) (position (- drain_edge_x (/ (- Fw Tsi) 2)) channel_edge_top_y drain_edge_top_z) "Silicon" "spacer1")
-(sdegeo:create-cuboid (position source_edge_x (+ source_edge_y Lspf) source_edge_z) (position (- drain_edge_x (/ (- Fw Tsi) 2)) (+ (+ source_edge_y Lspf) Lspb) source_edge_top_z) "Silicon" "spacer2")
-(sdegeo:create-cuboid (position (- source_edge_top_x (/ (- Fw Tsi) 2)) (+ source_edge_y Lspf) source_edge_z) (position source_edge_top_x (+ (+ source_edge_y Lspf) Lspb) source_edge_top_z) "Silicon" "spacer3")
+(sdegeo:create-cuboid (position drain_edge_x (- drain_edge_y Lspf) drain_edge_z) (position (- drain_edge_x (/ (- Fin_width Tsi) 2)) channel_edge_top_y drain_edge_top_z) "Silicon" "spacer1")
+(sdegeo:create-cuboid (position source_edge_x (+ source_edge_y Lspf) source_edge_z) (position (- drain_edge_x (/ (- Fin_width Tsi) 2)) (+ (+ source_edge_y Lspf) Lspb) source_edge_top_z) "Silicon" "spacer2")
+(sdegeo:create-cuboid (position (- source_edge_top_x (/ (- Fin_width Tsi) 2)) (+ source_edge_y Lspf) source_edge_z) (position source_edge_top_x (+ (+ source_edge_y Lspf) Lspb) source_edge_top_z) "Silicon" "spacer3")
 (sdegeo:create-cuboid (position channel_edge_top_x (- drain_edge_y Lspf) drain_edge_z) (position drain_edge_top_x channel_edge_top_y drain_edge_top_z) "Silicon" "spacer4")
 
 ; make front-gate oxide
-(sdegeo:create-cuboid (position (- channel_edge_x Toxf) (+ source_edge_y Lspb) source_edge_z) (position channel_edge_x (- drain_edge_y Lspf) channel_edge_top_z))
+(sdegeo:create-cuboid (position (- channel_edge_x Toxf) (+ source_edge_y Lspb) source_edge_z) (position channel_edge_x (- drain_edge_y Lspf) channel_edge_top_z) "Sio2" "fg_oxide")
 ; make back-gate oxide
-(sdegeo:create-cuboid (position (+ channel_edge_x Tsi) (+ source_edge_y Lspb) source_edge_z) (position (+ channel_edge_top_x Toxb) channel_edge_top_y channel_edge_top_z))
+(sdegeo:create-cuboid (position (+ channel_edge_x Tsi) (+ source_edge_y Lspb) source_edge_z) (position (+ channel_edge_top_x Toxb) channel_edge_top_y channel_edge_top_z) "Sio2" "bg_oxide")
 ; make gate2
 
 ; make gate3
