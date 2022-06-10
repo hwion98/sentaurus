@@ -122,8 +122,8 @@
 (define t_gate_edge_top_z (+ t_gate_oxide_edge_top_z Gate_height))
 
 (define Ngate @Ngate@)
-(define Nsource @Nsd@)
-(define Ndrain Nsource)
+(define Nsource @Ns@)
+(define Ndrain @Nd@)
 
 ; make silicon substrate
 (sdegeo:create-cuboid (position 0 0 0) (position substrate_edge_top_x substrate_edge_top_y substrate_edge_top_z) "Silicon" "substrate")
@@ -131,6 +131,11 @@
 ; doping substrate
 (sdedr:define-constant-profile "substrate_dop" "BoronActiveConcentration" substrate_doping)
 (sdedr:define-constant-profile-region "substrate_dop" "substrate_dop" "substrate")
+
+; make substrate contact
+(sdegeo:define-contact-set "substrate_contact" 4 (color:rgb 0 1 1) "##")
+(sdegeo:set-current-contact-set "substrate_contact")
+(sdegeo:set-contact-faces (list (car (find-face-id (position (/ substrate_edge_top_x 2) (/ substrate_edge_top_y 2) 0)))) "substrate_contact")
 
 ; make buried oxide
 (sdegeo:create-cuboid (position 0 0 substrate_edge_top_z) (position buried_oxide_edge_top_x buried_oxide_edge_top_y buried_oxide_edge_top_z) "Oxide" "buried_oxide")
@@ -146,12 +151,13 @@
 (sdegeo:create-cuboid (position spacer_l_edge_x spacer_l_edge_y spacer_l_edge_z) (position spacer_l_edge_top_x spacer_l_edge_top_y spacer_l_edge_top_z) "Nitride" "left_spacer")
 
 ; doping source
-(sdedr:define-refeval-window "RefEvalWin_s" "Polygon" (list (position source_edge_x source_edge_y source_edge_top_z) (position spacer_l_edge_x spacer_l_edge_y spacer_l_edge_top_z) 
-(position asource_edge_x asource_edge_y asource_edge_top_z) (position channel_edge_x channel_edge_y channel_edge_top_z) (position asource_edge_top_x asource_edge_top_y asource_edge_top_z) 
+(sdedr:define-refeval-window "RefEvalWin_s" "Polygon" (list (position source_edge_x source_edge_y source_edge_top_z) (position spacer_l_edge_x spacer_l_edge_y source_edge_top_z) 
+(position asource_edge_x asource_edge_y source_edge_top_z) (position channel_edge_x channel_edge_y source_edge_top_z) (position asource_edge_top_x asource_edge_top_y source_edge_top_z) 
 (position asource_edge_top_x asource_edge_y source_edge_top_z) (position source_edge_top_x source_edge_top_y source_edge_top_z) 
 (position source_edge_top_x source_edge_y source_edge_top_z) (position source_edge_x source_edge_y source_edge_top_z))) 
+
 (sdedr:define-gaussian-profile "Gauss.s" "PhosphorusActiveConcentration" "PeakPos" 0 "PeakVal" Nsource 
-"ValueAtDepth" substrate_doping "Depth" 0.2 "Gauss" "Factor" 0.8)
+"ValueAtDepth" substrate_doping "Depth" Fin_height "Gauss" "Factor" 0.5)
 (sdedr:define-analytical-profile-placement "Place.s" "Gauss.s" "RefEvalWin_s" "Positive" "NoRepalce" "Eval")
 
 ; make source contact
@@ -171,12 +177,13 @@
 (sdegeo:create-cuboid (position spacer_r_edge_x spacer_r_edge_y spacer_r_edge_z) (position spacer_r_edge_top_x spacer_r_edge_top_y spacer_r_edge_top_z) "Nitride" "right_spacer")
 
 ; doping drain
-(sdedr:define-refeval-window "RefEvalWin_d" "Polygon" (list (position drain_edge_x substrate_edge_top_y source_edge_top_z) (position drain_edge_x drain_edge_y drain_edge_top_z) 
-(position adrain_edge_x drain_edge_y drain_edge_top_z) (position adrain_edge_x adrain_edge_y drain_edge_top_z) (position channel_edge_top_x channel_edge_top_y channel_edge_top_z) 
-(position adrain_edge_top_x adrain_edge_top_y adrain_edge_top_z) (position drain_edge_top_x drain_edge_y drain_edge_top_z) (position drain_edge_top_x drain_edge_top_y drain_edge_top_z)
-(position drain_edge_x substrate_edge_top_y source_edge_top_z)))
+(sdedr:define-refeval-window "RefEvalWin_d" "Polygon" (list (position drain_edge_x drain_edge_top_y drain_edge_top_z) (position drain_edge_x drain_edge_y drain_edge_top_z) 
+(position adrain_edge_x drain_edge_y drain_edge_top_z) (position adrain_edge_x adrain_edge_y drain_edge_top_z) (position channel_edge_top_x channel_edge_top_y drain_edge_top_z) 
+(position adrain_edge_top_x adrain_edge_top_y drain_edge_top_z) (position drain_edge_top_x drain_edge_y drain_edge_top_z) (position drain_edge_top_x drain_edge_top_y drain_edge_top_z)
+(position drain_edge_x substrate_edge_top_y drain_edge_top_z)))
+
 (sdedr:define-gaussian-profile "Gauss.d" "PhosphorusActiveConcentration" "PeakPos" 0 "PeakVal" Ndrain 
-"ValueAtDepth" substrate_doping "Depth" 0.2 "Gauss" "Factor" 0.8)
+"ValueAtDepth" substrate_doping "Depth" Fin_height "Gauss" "Factor" 0.5)
 (sdedr:define-analytical-profile-placement "Place.d" "Gauss.d" "RefEvalWin_d" "Positive" "NoRepalce" "Eval")
 
 ; make drain contact
@@ -216,21 +223,27 @@
 
 (sdegeo:define-contact-set "gate_contact" 4 (color:rgb 0 0 1) "##")
 (sdegeo:set-current-contact-set "gate_contact")
-(sdegeo:set-contact-faces (list (car (find-face-id (position (/ (+ channel_edge_x channel_edge_top_x) 2) (/ (+ channel_edge_y channel_edge_top_y) 2) gate_edge_top_z)))) "gate_contact")
+(sdegeo:set-contact-faces (list (car (find-face-id (position (/ (+ channel_edge_x channel_edge_top_x) 2) (/ (+ channel_edge_y channel_edge_top_y) 2) t_gate_edge_top_z)))) "gate_contact")
 
 ; build substrate mesh
-(define res_max 0.1)
-(define res_min 0.01)
+
+(define res_max 0.03)
+(define res_min 0.005)
 
 (sdedr:define-refinement-size "global-mesh-size" res_max res_max res_max res_min res_min res_min )
-(sdedr:define-refinement-region "global-mesh" "global-mesh-size" "substrate")
+(sdedr:define-refinement-material "global-mesh" "global-mesh-size" "Silicon")
 
 ; build channel mesh
 
-(sdedr:define-refeval-window "RefWin.all" "cuboid" (position asource_edge_x asource_edge_y asource_edge_z) (position adrain_edge_top_x adrain_edge_top_y adrain_edge_top_z))
-(sdedr:define-refinement-size "RefDef.all" 0.05 0.05 0.05 0.005 0.005 0.005 )
+(sdedr:define-refeval-window "RefWin.all" "cuboid" (position asource_edge_x asource_edge_y source_edge_z) (position adrain_edge_top_x adrain_edge_top_y adrain_edge_top_z))
+(sdedr:define-refinement-size "RefDef.all" 0.008 0.008 0.008 0.001 0.001 0.001 )
 (sdedr:define-refinement-function "RefDef.all" "DopingConcentration" "MaxTransDiff" 1)
 (sdedr:define-refinement-placement "PlaceRF.all" "RefDef.all" "RefWin.all")
 
+(sdedr:define-refinement-size "global-mesh-size" res_max res_max res_max res_min res_min res_min )
+(sdedr:define-refinement-material "global-mesh" "global-mesh-size" "PolySilicon")
+
+(sdedr:define-refinement-size "global-mesh-size" res_max res_max res_max res_min res_min res_min )
+(sdedr:define-refinement-material "global-mesh" "global-mesh-size" "SiO2")
 
 (sde:build-mesh "n@node@")
