@@ -87,7 +87,7 @@
 
 (define f_gate_oxide_edge_top_x adrain_edge_x)
 (define f_gate_oxide_edge_top_y adrain_edge_y)
-(define f_gate_oxide_edge_top_z source_edge_top_z)
+(define f_gate_oxide_edge_top_z (+ source_edge_top_z GOh))
 
 (define b_gate_oxide_edge_x asource_edge_top_x)
 (define b_gate_oxide_edge_y asource_edge_top_y)
@@ -95,7 +95,7 @@
 
 (define b_gate_oxide_edge_top_x (+ channel_edge_top_x Toxb))
 (define b_gate_oxide_edge_top_y channel_edge_top_y)
-(define b_gate_oxide_edge_top_z source_edge_top_z)
+(define b_gate_oxide_edge_top_z (+ source_edge_top_z GOh))
 
 (define t_gate_oxide_edge_x channel_edge_x)
 (define t_gate_oxide_edge_y channel_edge_y)
@@ -157,7 +157,7 @@
 (position source_edge_top_x source_edge_y source_edge_top_z) (position source_edge_x source_edge_y source_edge_top_z))) 
 
 (sdedr:define-gaussian-profile "Gauss.s" "PhosphorusActiveConcentration" "PeakPos" 0 "PeakVal" Nsource 
-"ValueAtDepth" substrate_doping "Depth" Fin_height "Gauss" "Factor" 0.2)
+"ValueAtDepth" substrate_doping "Depth" Fin_height "Gauss" "Factor" 0.15)
 (sdedr:define-analytical-profile-placement "Place.s" "Gauss.s" "RefEvalWin_s" "Positive" "NoRepalce" "Eval")
 
 ; make source contact
@@ -183,7 +183,7 @@
 (position drain_edge_x substrate_edge_top_y drain_edge_top_z)))
 
 (sdedr:define-gaussian-profile "Gauss.d" "PhosphorusActiveConcentration" "PeakPos" 0 "PeakVal" Ndrain 
-"ValueAtDepth" substrate_doping "Depth" Fin_height "Gauss" "Factor" 0.2)
+"ValueAtDepth" substrate_doping "Depth" Fin_height "Gauss" "Factor" 0.15)
 (sdedr:define-analytical-profile-placement "Place.d" "Gauss.d" "RefEvalWin_d" "Both" "NoRepalce" "Eval")
 
 ; make drain contact
@@ -227,7 +227,7 @@
 
 ; build substrate mesh
 
-(define res_max 0.05)
+(define res_max 0.02)
 (define res_min 0.01)
 
 (sdedr:define-refinement-size "global-mesh-size" res_max res_max res_max res_min res_min res_min )
@@ -236,7 +236,7 @@
 ; build channel mesh
 
 (sdedr:define-refeval-window "RefWin.all" "cuboid" (position asource_edge_x asource_edge_y source_edge_z) (position adrain_edge_top_x adrain_edge_top_y adrain_edge_top_z))
-(sdedr:define-refinement-size "RefDef.all" 0.01 0.01 0.01 0.001 0.001 0.001 )
+(sdedr:define-refinement-size "RefDef.all" 0.008 0.008 0.008 0.003 0.003 0.003 )
 (sdedr:define-refinement-function "RefDef.all" "DopingConcentration" "MaxTransDiff" 1)
 (sdedr:define-refinement-placement "PlaceRF.all" "RefDef.all" "RefWin.all")
 
@@ -245,7 +245,7 @@
 (sdedr:define-refinement-material "global-mesh" "global-mesh-size" "PolySilicon")
 
 ; build gate oxide mesh
-(sdedr:define-refinement-size "global-mesh-size" 0.005 0.005 0.005 0.001 0.001 0.001 )
+(sdedr:define-refinement-size "global-mesh-size" 0.001 0.005 0.01 0.0005 0.001 0.005 )
 (sdedr:define-refinement-material "global-mesh" "global-mesh-size" "SiO2")
 
 ; build buried oxide mesh
@@ -257,3 +257,4 @@
 (sdedr:define-refinement-material "global-mesh" "global-mesh-size" "Nitide")
 
 (sde:build-mesh "n@node@")
+
