@@ -73,7 +73,7 @@ Solve {
   Plot ( FilePrefix = "n@node@_init" )
 
   Quasistationary (
-  InitialStep = 0.05 Increment = 1.3	
+  InitialStep = 0.1 Increment = 1.3	
   Minstep = 1.e-6     Maxstep = 0.05	
   Goal { Name = "gate_contact" Voltage = @Vgs@ }  
  ) {
@@ -83,7 +83,7 @@ Solve {
  NewCurrentPrefix = "VdsIds_"
  Quasistationary (
     InitialStep = 0.05 Increment = 1.3	
-  Minstep = 1.e-6     Maxstep = 0.05	
+  Minstep = 1.e-6     Maxstep = 0.1	
   Goal { Name = "drain_contact" Voltage = @Vds@ }  
  ) {
        Coupled { Poisson Electron Hole }

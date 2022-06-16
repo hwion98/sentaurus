@@ -12,15 +12,15 @@
 (define Fg_width @Fg_width@)
 (define Bg_width @Bg_width@)
 (define Gate_height @Gate_height@)
-(define Gdh @Gdh@)
+(define GOh @GOh@)
 
 (define substrate_edge_top_x (+ Fg_width (+ Tsi Bg_width)))
 (define substrate_edge_top_y (+ Ls (+ Lspb (+ LGB(+ Ls Lspf)))))
-(define substrate_thickness 0.12)
+(define substrate_thickness 0.1)
 (define substrate_edge_top_z substrate_thickness)
 (define substrate_doping @Nbody@)
 
-(define buried_oxide_thickness 0.08)
+(define buried_oxide_thickness 0.07)
 (define buried_oxide_edge_top_x substrate_edge_top_x)
 (define buried_oxide_edge_top_y substrate_edge_top_y)
 (define buried_oxide_edge_top_z (+ buried_oxide_thickness substrate_edge_top_z))
@@ -103,7 +103,7 @@
 
 (define t_gate_oxide_edge_top_x channel_edge_top_x)
 (define t_gate_oxide_edge_top_y channel_edge_top_y)
-(define t_gate_oxide_edge_top_z (+ source_edge_top_z Gdh))
+(define t_gate_oxide_edge_top_z (+ source_edge_top_z GOh))
 
 (define gate_edge_x 0)
 (define gate_edge_y channel_edge_y)
@@ -157,7 +157,7 @@
 (position source_edge_top_x source_edge_y source_edge_top_z) (position source_edge_x source_edge_y source_edge_top_z))) 
 
 (sdedr:define-gaussian-profile "Gauss.s" "PhosphorusActiveConcentration" "PeakPos" 0 "PeakVal" Nsource 
-"ValueAtDepth" substrate_doping "Depth" Fin_height "Gauss" "Factor" 0.5)
+"ValueAtDepth" substrate_doping "Depth" Fin_height "Gauss" "Factor" 0.2)
 (sdedr:define-analytical-profile-placement "Place.s" "Gauss.s" "RefEvalWin_s" "Positive" "NoRepalce" "Eval")
 
 ; make source contact
@@ -183,8 +183,8 @@
 (position drain_edge_x substrate_edge_top_y drain_edge_top_z)))
 
 (sdedr:define-gaussian-profile "Gauss.d" "PhosphorusActiveConcentration" "PeakPos" 0 "PeakVal" Ndrain 
-"ValueAtDepth" substrate_doping "Depth" Fin_height "Gauss" "Factor" 0.5)
-(sdedr:define-analytical-profile-placement "Place.d" "Gauss.d" "RefEvalWin_d" "Positive" "NoRepalce" "Eval")
+"ValueAtDepth" substrate_doping "Depth" Fin_height "Gauss" "Factor" 0.2)
+(sdedr:define-analytical-profile-placement "Place.d" "Gauss.d" "RefEvalWin_d" "Both" "NoRepalce" "Eval")
 
 ; make drain contact
 
@@ -227,8 +227,8 @@
 
 ; build substrate mesh
 
-(define res_max 0.03)
-(define res_min 0.005)
+(define res_max 0.05)
+(define res_min 0.01)
 
 (sdedr:define-refinement-size "global-mesh-size" res_max res_max res_max res_min res_min res_min )
 (sdedr:define-refinement-material "global-mesh" "global-mesh-size" "Silicon")
@@ -236,14 +236,24 @@
 ; build channel mesh
 
 (sdedr:define-refeval-window "RefWin.all" "cuboid" (position asource_edge_x asource_edge_y source_edge_z) (position adrain_edge_top_x adrain_edge_top_y adrain_edge_top_z))
-(sdedr:define-refinement-size "RefDef.all" 0.008 0.008 0.008 0.001 0.001 0.001 )
+(sdedr:define-refinement-size "RefDef.all" 0.01 0.01 0.01 0.001 0.001 0.001 )
 (sdedr:define-refinement-function "RefDef.all" "DopingConcentration" "MaxTransDiff" 1)
 (sdedr:define-refinement-placement "PlaceRF.all" "RefDef.all" "RefWin.all")
 
+; build gate mesh
 (sdedr:define-refinement-size "global-mesh-size" res_max res_max res_max res_min res_min res_min )
 (sdedr:define-refinement-material "global-mesh" "global-mesh-size" "PolySilicon")
 
-(sdedr:define-refinement-size "global-mesh-size" res_max res_max res_max res_min res_min res_min )
+; build gate oxide mesh
+(sdedr:define-refinement-size "global-mesh-size" 0.005 0.005 0.005 0.001 0.001 0.001 )
 (sdedr:define-refinement-material "global-mesh" "global-mesh-size" "SiO2")
+
+; build buried oxide mesh
+(sdedr:define-refinement-size "global-mesh-size" res_max res_max res_max res_min res_min res_min )
+(sdedr:define-refinement-material "global-mesh" "global-mesh-size" "Oxide")
+
+; build Nitride mesh
+(sdedr:define-refinement-size "global-mesh-size" res_max res_max res_max res_min res_min res_min )
+(sdedr:define-refinement-material "global-mesh" "global-mesh-size" "Nitide")
 
 (sde:build-mesh "n@node@")
